@@ -67,9 +67,26 @@ jobs:
       # 8. Push image to DockerHub
       - name: Push image to DockerHub
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest
+          docker push \
+            ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest
 
       # 9. Push image to GHCR
       - name: Push image to GHCR
         run: |
-          docker push ${{ env.GHCR_IMAGE }}:latest
+          docker push \
+            ${{ env.GHCR_IMAGE }}:latest
+
+      # 10. Trigger CD repository
+      - name: Trigger CD
+        run: |
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.CD_REPO_TOKEN }}" \
+            https://api.github.com/repos/Pattabhi45/Java_APP_deploy/dispatches \
+            -d '{
+              "event_type": "deploy",
+              "client_payload": {
+                "image": "${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest"
+              }
+            }'
