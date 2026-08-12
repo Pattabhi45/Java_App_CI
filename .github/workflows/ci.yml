@@ -20,12 +20,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      # 1. Checkout source code
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # 2. Setup Java 21
       - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
@@ -33,22 +30,18 @@ jobs:
           java-version: '21'
           cache: maven
 
-      # 3. Run Maven tests
       - name: Run Maven tests
         run: mvn clean test
 
-      # 4. Build JAR
       - name: Build JAR
         run: mvn package -DskipTests
 
-      # 5. Login to DockerHub
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6. Login to GHCR
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -56,7 +49,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 7. Build Docker image
       - name: Build Docker image
         run: |
           docker build \
@@ -64,29 +56,24 @@ jobs:
             -t ${{ env.GHCR_IMAGE }}:latest \
             .
 
-      # 8. Push image to DockerHub
       - name: Push image to DockerHub
         run: |
-          docker push \
-            ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest
 
-      # 9. Push image to GHCR
       - name: Push image to GHCR
         run: |
-          docker push \
-            ${{ env.GHCR_IMAGE }}:latest
+          docker push ${{ env.GHCR_IMAGE }}:latest
 
-      # 10. Trigger CD repository
-      - name: Trigger CD
+      - name: Trigger CD Repository
         run: |
-          curl -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.CD_REPO_TOKEN }}" \
-            https://api.github.com/repos/Pattabhi45/Java_APP_deploy/dispatches \
-            -d '{
-              "event_type": "deploy",
-              "client_payload": {
-                "image": "${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest"
-              }
-            }'
+          curl -i -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.CD_REPO_TOKEN }}" \
+          https://api.github.com/repos/Pattabhi45/Java_APP_deploy/dispatches \
+          -d '{
+            "event_type":"deploy",
+            "client_payload":{
+              "image":"'"${{ secrets.DOCKERHUB_USERNAME }}/spring-boot-crud-postgres-adminer:latest"'",
+              "tag":"latest"
+            }
+          }'
