@@ -127,9 +127,9 @@ jobs:
       - name: Checkout Deployment Repository
         uses: actions/checkout@v4
         with:
-          repository: Pattabhi45/Java_Deploy
-          token: ${{ secrets.DEPLOYMENT_TOKEN }}
-          path: deployment-repo
+            repository: Pattabhi45/Java_APP_deploy
+            token: ${{ secrets.DEPLOYMENT_TOKEN }}
+            path: deployment-repo
 
       # ----------------------------------------
       # Update Kubernetes image
