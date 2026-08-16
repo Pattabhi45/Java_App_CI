@@ -97,10 +97,9 @@ jobs:
       # Checkout Deployment Repository
       # ----------------------------------------
       - name: Checkout Deployment Repository
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/checkout@v4
         with:
-          repository: Pattabhi45/Java_Deploy
+          repository: Pattabhi45/Java_APP_deploy
           token: ${{ secrets.DEPLOYMENT_TOKEN }}
           path: deployment-repo
 
